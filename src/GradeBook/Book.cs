@@ -19,12 +19,19 @@ namespace GradeBook
             grades = new List<double>();
         }
 
-        public void ShowStatistics()
+        public Statistics GetStatistics()
         {
-         Console.WriteLine($"{this.name}");
-         Console.WriteLine($"The average grade is {this.getAverageGrade()}");
-         Console.WriteLine($"The lowest grade is {this.getLowestGrade()}");
-         Console.WriteLine($"The highest grade is {this.getHighestGrade()}");
+            var result  = new Statistics();
+            result.Average = 0.0;
+            result.Highest = double.MinValue;
+            result.Lowest = double.MaxValue;
+            foreach(var grade in grades){
+                result.Lowest = Math.Min(result.Lowest,grade);
+                result.Highest = Math.Max(result.Highest,grade);
+                result.Average += grade;
+            }
+            result.Average /=grades.Count;
+            return result;
         }
 
         public string getName(){
@@ -32,16 +39,6 @@ namespace GradeBook
         }
         public void AddGrade(double grade)
         {
-            if (grade < lowestGrade)
-            {
-                lowestGrade = grade;
-            }
-            if (grade > highestGrade)
-            {
-                highestGrade = grade;
-            }
-            double prevSum = average * grades.Count;
-            average = (prevSum + grade) / (grades.Count + 1);
             grades.Add(grade);
         }
 

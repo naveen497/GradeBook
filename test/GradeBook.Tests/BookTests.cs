@@ -3,25 +3,37 @@ using Xunit;
 
 namespace GradeBook.Tests
 {
+
     public class BookTests
     {
+
+
         [Fact]
-        public void Test1()
+        public void BookCanComputeStatistics()
         {
             //arrange
-            var book = new Book("");
-            book.AddGrade(1.3);
-            book.AddGrade(2.5);
-            book.AddGrade(3.234);
+            var book = new Book("New name");
+            book.AddGrade(80.3);
+            book.AddGrade(82.5);
+            book.AddGrade(90.234);
 
             // act
             var result = book.GetStatistics();
 
             //assert
             
-            Assert.Equal(1.3,result.Lowest,1);
-            Assert.Equal(3.234,result.Highest,1);
-            Assert.Equal(2.3,result.Average,1);
+            Assert.Equal(80.3,result.Lowest,1);
+            Assert.Equal(90.234,result.Highest,1);
+            Assert.Equal(84.34,result.Average,1);
+            Assert.Equal('B',result.Letter);
+        }
+
+        [Fact]
+        public void TestingTheInputValidation(){
+            //arrange
+            var book = new Book("");
+            book.AddGrade(-2.3);
+
         }
     }
 }

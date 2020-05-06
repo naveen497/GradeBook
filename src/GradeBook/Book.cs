@@ -4,17 +4,83 @@ using System.IO;
 
 namespace GradeBook
 {
+    public abstract class Book : NamedObject, IBook
+    {
+        public Book(string name) : base(name)
+        {
+        }
+
+        public abstract event GradeAddedDelegate GradeAdded;
+
+        public abstract void AddGrade(double grade);
+
+        public abstract Statistics GetStatistics();
+    }
+    public class NamedObject
+    {
+        public NamedObject(string name)
+        {
+            this.Name = name;
+        }
+
+        public string Name
+        {
+            get;
+            set;
+        }
+    }
     public delegate void GradeAddedDelegate(object sender, EventArgs e);
-    public class Book
+    public interface IBook
+    {
+        void AddGrade(double grade);
+        Statistics GetStatistics();
+        string Name { get; }
+        event GradeAddedDelegate GradeAdded;
+    }
+    public class DiskBook : Book
+    {
+        public DiskBook(string name) : base(name)
+        {
+        }
+
+        public override event GradeAddedDelegate GradeAdded;
+
+        public override void AddGrade(double grade)
+        {
+            using (var writer = File.AppendText($"{Name}.txt"))
+            {
+                writer.WriteLine(grade);
+                if (GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
+                }
+            }
+        }
+
+        public override Statistics GetStatistics()
+        {
+            var result = new Statistics();
+            using (var reader = File.OpenText($"{Name}.txt"))
+            {
+                var line = reader.ReadLine();
+                while (line != null)
+                {
+                    var number = double.Parse(line);
+                    result.Add(number);
+                    line = reader.ReadLine();
+                }
+            }
+
+            return result;
+        }
+    }
+    public class InMemoryBook : Book
     {
         List<double> grades;
 
         // private string name;
 
-        public string Name{
-            get;
-            set;
-        }
+
         // public string Name{
         //     get{
         //         return name;
@@ -28,57 +94,32 @@ namespace GradeBook
         //         }
         //     }
         // }
-        public Book(string name)
+        public InMemoryBook(string name) : base(name)
         {
-            this.Name = name;
+            // this.Name = name;
             grades = new List<double>();
         }
 
-        public Statistics GetStatistics()
+        public override Statistics GetStatistics()
         {
             var result = new Statistics();
-            var resutl = new Statistics();
-            result.Average = 0.0;
-            result.Highest = double.MinValue;
-            result.Lowest = double.MaxValue;
             foreach (var grade in grades)
             {
-                result.Lowest = Math.Min(result.Lowest, grade);
-                result.Highest = Math.Max(result.Highest, grade);
-                result.Average += grade;
+                result.Add(grade);
             }
-            result.Average /= grades.Count;
-            switch (result.Average)
-            {
-                case var d when d >= 90:
-                    result.Letter = 'A';
-                    break;
-                case var d when d >= 80:
-                    result.Letter = 'B';
-                    break;
-                case var d when d >= 70:
-                    result.Letter = 'C';
-                    break;
-                default:
-                    result.Letter = 'F';
-                    break;
-            }
+
             return result;
         }
 
-        public GradeAddedDelegate GradeAdded;
-
-        public string GetName()
-        {
-            return this.Name;
-        }
-        public void AddGrade(double grade)
+        public override event GradeAddedDelegate GradeAdded;
+        public override void AddGrade(double grade)
         {
             if (grade > 0 && grade <= 100)
             {
                 grades.Add(grade);
-                if(GradeAdded != null){
-                GradeAdded(this, new EventArgs());
+                if (GradeAdded != null)
+                {
+                    GradeAdded(this, new EventArgs());
                 }
             }
             else
@@ -87,8 +128,10 @@ namespace GradeBook
             }
         }
 
-        public void AddGrade(char letter){
-            switch(letter){
+        public void AddGrade(char letter)
+        {
+            switch (letter)
+            {
                 case 'A':
                     AddGrade(90);
                     break;

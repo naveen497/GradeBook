@@ -7,17 +7,24 @@ namespace GradeBook
     {
         static void Main(string[] args)
         {
-            var book = new Book("");
-            book.GradeAdded+=onGradeAdded;
-            book.GradeAdded+=onGradeAdded;
-            book.GradeAdded-=onGradeAdded;
-            book.GradeAdded+=onGradeAdded;
+            IBook book = new DiskBook("ss");
+            book.GradeAdded += onGradeAdded;
+            book.GradeAdded += onGradeAdded;
+            book.GradeAdded -= onGradeAdded;
+            book.GradeAdded += onGradeAdded;
 
-            //    book.AddGrade(22.6);
-            //    book.AddGrade(22);
-            //    book.AddGrade(32.5);
-            //    book.AddGrade(38.2);
+            EnterGrades(book);
 
+            var result = book.GetStatistics();
+            Console.WriteLine($"Grades for {book.Name}");
+            Console.WriteLine($"average: {result.Average:N2}");
+            Console.WriteLine($"lowest: {result.Lowest}");
+            Console.WriteLine($"highest: {result.Highest}");
+
+        }
+
+        private static void EnterGrades(IBook book)
+        {
             while (true)
             {
                 Console.WriteLine("Please Enter a grade or 'q' to quit:");
@@ -47,20 +54,10 @@ namespace GradeBook
                     Console.WriteLine("**");
                 }
             }
-
-
-            var result = book.GetStatistics();
-            Console.WriteLine($"Grades for {book.Name}");
-            Console.WriteLine($"average: {result.Average:N2}");
-            Console.WriteLine($"lowest: {result.Lowest}");
-            Console.WriteLine($"highest: {result.Highest}");
-            Console.WriteLine($"highest: {result.Highest}");
-
-
-
         }
 
-        static void onGradeAdded(object sender, EventArgs eventArgs){
+        static void onGradeAdded(object sender, EventArgs eventArgs)
+        {
             Console.WriteLine("Grade added");
         }
     }
